@@ -1,0 +1,30 @@
+{
+  "name": "corp-task-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "bootstrap": "node dist/bootstrap.js",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "pg": "^8.16.0",
+    "zod": "^3.25.0",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^8.0.0",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^24.0.0",
+    "@types/express": "^5.0.0",
+    "@types/pg": "^8.15.0",
+    "@electric-sql/pglite": "^0.3.0"
+  }
+}

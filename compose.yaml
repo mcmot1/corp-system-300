@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: corp
+      POSTGRES_USER: corp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corp -d corp"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build: ./server
+    restart: unless-stopped
+    init: true
+    environment:
+      DATABASE_URL: postgresql://corp:${DB_PASSWORD}@db:5432/corp
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set CORS_ORIGINS}
+      MAX_CHAT_MEMBERS: ${MAX_CHAT_MEMBERS:-500}
+      DB_POOL_MAX: ${DB_POOL_MAX:-20}
+    depends_on:
+      db:
+        condition: service_healthy
+    # Intentionally no published port; only Caddy can reach API from outside.
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [api]
+volumes:
+  pgdata:
+  caddydata:
+  caddyconfig:
