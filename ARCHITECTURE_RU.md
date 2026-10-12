@@ -111,6 +111,24 @@ find /opt/backups/corp -type f -mtime +14 -delete
 
 Восстановление всегда сначала проверяйте в отдельной тестовой БД или на отдельном VPS. Не удаляйте production volume для проверки backup.
 
-## Первый запуск фронтенда
+## Запуск frontend
 
-Сервер не содержит UI. Фронтенд может быть React/Next.js или Vue 3. Он обращается к REST API по `/api`, передаёт `Authorization: Bearer <access_token>`, а для realtime подключается к Socket.IO с `auth: { token }`. Для production лучше собирать frontend отдельным контейнером и проксировать его через Caddy рядом с API.
+В каталоге `frontend/` находится React + TypeScript интерфейс. Он содержит вход, проекты и задачи, смену статусов, мессенджер с Socket.IO и административный список пользователей.
+
+Для локальной разработки:
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Для production frontend уже подключён в `compose.yaml` как сервис `web`, а Caddy направляет `/api` и `/socket.io` в API, остальные запросы — в frontend:
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+Откройте `https://ваш-домен.ru`. Если backend и frontend размещены на разных доменах, укажите URL API в `frontend/.env` через `VITE_API_URL` и добавьте этот домен в `CORS_ORIGINS`.

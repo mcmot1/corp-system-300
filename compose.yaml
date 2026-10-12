@@ -27,6 +27,11 @@ services:
       db:
         condition: service_healthy
     # Intentionally no published port; only Caddy can reach API from outside.
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    init: true
+    depends_on: [api]
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped
@@ -39,7 +44,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data
       - caddyconfig:/config
-    depends_on: [api]
+    depends_on: [api, web]
 volumes:
   pgdata:
   caddydata:
